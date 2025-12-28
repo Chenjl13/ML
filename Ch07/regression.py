@@ -116,27 +116,42 @@ def stageWise(xArr,yArr,eps=0.01,numIt=100):
 from time import sleep
 import json
 import urllib
+import os
+
 def searchForSet(retX, retY, setNum, yr, numPce, origPrc):
     sleep(10)
-   # myAPIstr = 'AIzaSyD2cR2KFyx12hXu6PFU-wrWot3NXvko8vY'
-    searchURL = 'https://www.googleapis.com/shopping/search/v1/public/products?key=%s&country=US&q=lego+%d&alt=json' % (myAPIstr, setNum)
+
+    myAPIstr = os.getenv("GOOGLE_API_KEY")
+    if myAPIstr is None:
+        raise RuntimeError("GOOGLE_API_KEY not set")
+
+    searchURL = (
+        "https://www.googleapis.com/shopping/search/v1/public/products"
+        "?key=%s&country=US&q=lego+%d&alt=json"
+        % (myAPIstr, setNum)
+    )
+
     pg = urllib.urlopen(searchURL)
     retDict = json.loads(pg.read())
+
     for i in range(len(retDict['items'])):
         try:
             currItem = retDict['items'][i]
             if currItem['product']['condition'] == 'new':
                 newFlag = 1
-            else: newFlag = 0
+            else:
+                newFlag = 0
+
             listOfInv = currItem['product']['inventories']
             for item in listOfInv:
                 sellingPrice = item['price']
-                if  sellingPrice > origPrc * 0.5:
-                    print("%d\t%d\t%d\t%f\t%f" % (yr,numPce,newFlag,origPrc, sellingPrice))
-                    retX.append([yr, numPce, newFlag, origPrc])
+                if sellingPrice > origPrc * 0.5:
+                    print("%d\t%d\t%d\t%f\t%f" %
+                          (yr, numPce, newFlag, origPrc, sellingPrice))
+                    retX.append((yr, numPce, newFlag, origPrc))
                     retY.append(sellingPrice)
         except:
-            print('problem with item %d' % i)
+            print("problem with item %d" % i)
     
 def setDataCollect(retX, retY):
     searchForSet(retX, retY, 8288, 2006, 800, 49.99)
@@ -178,4 +193,5 @@ def crossValidation(xArr,yArr,numVal=10):
     unReg = bestWeights/varX
     print("the best model from Ridge Regression is:\n",unReg)
     print("with constant term: ",-1*sum(multiply(meanX,unReg)) + mean(yMat))
+
 
