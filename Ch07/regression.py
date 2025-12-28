@@ -1,8 +1,5 @@
-'''
-Created on Jan 8, 2011
+# setx GOOGLE_API_KEY "你的新APIKey"
 
-@author: Peter
-'''
 from numpy import *
 
 def loadDataSet(fileName):      #general function to parse tab -delimited floats
@@ -193,5 +190,6 @@ def crossValidation(xArr,yArr,numVal=10):
     unReg = bestWeights/varX
     print("the best model from Ridge Regression is:\n",unReg)
     print("with constant term: ",-1*sum(multiply(meanX,unReg)) + mean(yMat))
+
 
 
